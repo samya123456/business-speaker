@@ -3,8 +3,8 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import useClipboard from "react-use-clipboard";
 import { useState } from "react";
 import { useSpeechSynthesis } from "react-speech-kit";
-
-
+import useLongPress from "./useLongPress";
+import { FaMicrophone } from "react-icons/fa";
 const App = () => {
   const [textToCopy, setTextToCopy] = useState();
   const [question, setQuestion] = useState();
@@ -12,8 +12,6 @@ const App = () => {
   const [isCopied, setCopied] = useClipboard(textToCopy, {
     successDuration: 1000
   });
-
-
 
   const { transcript,
     listening,
@@ -25,14 +23,31 @@ const App = () => {
   const startListening = () => {
     SpeechRecognition.startListening({ continuous: true, language: 'en-IN' });
     setAnswer('')
-
   }
 
   const sayTheAnswer = (answer) => {
     speak({ text: answer })
 
   }
+  const onLongPress = () => {
+    startListening()
+    console.log('longpress is triggered');
+  };
+  const onClick = () => {
+    console.log('click is triggered')
+  }
 
+  const onLongPressEnd = () => {
+    SpeechRecognition.stopListening()
+    console.log('longpress End is triggered');
+    getYourAnswer()
+  };
+
+  const defaultOptions = {
+    shouldPreventDefault: true,
+    delay: 500,
+  };
+  const longPressEvent = useLongPress(onLongPress, onClick, onLongPressEnd, defaultOptions);
   const getYourAnswer = () => {
     const question = transcript
     let query = { question }
@@ -80,14 +95,9 @@ const App = () => {
         </div>
 
         <div className="btn-style">
-
-          {/* <button onClick={setCopied}>
-            {isCopied ? 'Copied!' : 'Copy to clipboard'}
-          </button> */}
-          <button onClick={startListening}>Start Listening</button>
-          <button onClick={SpeechRecognition.stopListening}>Stop Listening</button>
-          <button onClick={getYourAnswer}>Get Answer</button>
+          <button {...longPressEvent}><FaMicrophone /></button>
           <button onClick={doClear}>Clear</button>
+
 
         </div>
 
