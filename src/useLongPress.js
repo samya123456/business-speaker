@@ -4,7 +4,7 @@ const useLongPress = (
     onLongPress,
     onClick,
     onLongPressEnd,
-    { shouldPreventDefault = true, delay = 300 } = {}
+    { shouldPreventDefault = true, delay = 10000000000000 } = {}
 ) => {
     const [longPressTriggered, setLongPressTriggered] = useState(false);
     const timeout = useRef();
@@ -31,7 +31,7 @@ const useLongPress = (
             timeout.current && clearTimeout(timeout.current);
             // shouldTriggerClick && !longPressTriggered && onClick();
             setLongPressTriggered(false);
-            !shouldTriggerClick && onLongPressEnd(event)
+            !shouldTriggerClick && longPressTriggered && onLongPressEnd(event)
             if (shouldPreventDefault && target.current) {
                 target.current.removeEventListener("touchend", preventDefault);
 
@@ -44,9 +44,9 @@ const useLongPress = (
     return {
         onMouseDown: e => start(e),
         onTouchStart: e => start(e),
-        onMouseUp: e => clear(e),
+        onMouseUp: e => clear(e, false),
         onMouseLeave: e => console.log('Mouse is up'),
-        onTouchEnd: e => clear(e)
+        //onTouchEnd: e => clear(e)
     };
 };
 
