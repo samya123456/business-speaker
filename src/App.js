@@ -14,6 +14,8 @@ const App = () => {
   const [isCopied, setCopied] = useClipboard(textToCopy, {
     successDuration: 1000
   });
+  const [showCancel, setShowCancel] = useState(false)
+  const [showAnswer, setShowAnswer] = useState(false)
 
   const { transcript,
     listening,
@@ -26,7 +28,7 @@ const App = () => {
     await SpeechRecognition.startListening({ continuous: true, language: 'en-IN' });
     setAnswer('')
   }
-  const [showCancel, setShowCancel] = useState(false)
+
   const sayTheAnswer = (answer) => {
     speak({ text: answer })
 
@@ -44,6 +46,7 @@ const App = () => {
     console.log('longpress End is triggered');
     await getYourAnswer()
     setShowCancel(true)
+    setShowAnswer(true)
   };
 
 
@@ -51,6 +54,13 @@ const App = () => {
     <button onClick={doClear} class="searchButton" ><MdOutlineClear />
       <i class="material-icons">
       </i></button>
+
+  )
+
+  const Result = () => (
+    <div id="answerbox" className="resultBox">
+      {answer}
+    </div>
 
   )
 
@@ -87,6 +97,7 @@ const App = () => {
     resetTranscript()
     setAnswer('')
     setShowCancel(false)
+    setShowAnswer(false)
 
 
   }
@@ -132,7 +143,11 @@ const App = () => {
           </i>
         </button>
         {showCancel ? <ClearButton /> : null}
+
       </div >
+      {showAnswer ? <Result /> : null}
+
+
 
     </>
   );
