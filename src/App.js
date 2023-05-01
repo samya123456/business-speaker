@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useSpeechSynthesis } from "react-speech-kit";
 import useLongPress from "./useLongPress";
 import { FaMicrophone } from "react-icons/fa";
+import { MdOutlineClear } from "react-icons/md"
+import { async } from "q";
 const App = () => {
   const [textToCopy, setTextToCopy] = useState();
   const [question, setQuestion] = useState();
@@ -20,35 +22,44 @@ const App = () => {
   //setQuestion(transcript)
   const { speak } = useSpeechSynthesis();
 
-  const startListening = () => {
-    SpeechRecognition.startListening({ continuous: true, language: 'en-IN' });
+  const startListening = async () => {
+    await SpeechRecognition.startListening({ continuous: true, language: 'en-IN' });
     setAnswer('')
   }
-
+  const [showCancel, setShowCancel] = useState(false)
   const sayTheAnswer = (answer) => {
     speak({ text: answer })
 
   }
-  const onLongPress = () => {
-    startListening()
+  const onLongPress = async () => {
+    await startListening()
     console.log('longpress is triggered');
   };
   const onClick = () => {
     console.log('click is triggered')
   }
 
-  const onLongPressEnd = () => {
+  const onLongPressEnd = async () => {
     SpeechRecognition.stopListening()
     console.log('longpress End is triggered');
-    getYourAnswer()
+    await getYourAnswer()
+    setShowCancel(true)
   };
+
+
+  const ClearButton = () => (
+    <button onClick={doClear} class="searchButton" ><MdOutlineClear />
+      <i class="material-icons">
+      </i></button>
+
+  )
 
   const defaultOptions = {
     shouldPreventDefault: true,
     delay: 500,
   };
   const longPressEvent = useLongPress(onLongPress, onClick, onLongPressEnd, defaultOptions);
-  const getYourAnswer = () => {
+  const getYourAnswer = async () => {
     const question = transcript
     let query = { question }
     console.log(JSON.stringify(query))
@@ -75,6 +86,7 @@ const App = () => {
 
     resetTranscript()
     setAnswer('')
+    setShowCancel(false)
 
 
   }
@@ -84,7 +96,7 @@ const App = () => {
 
   return (
     <>
-      <div className="container">
+      {/* <div className="container">
         <h2>Speech to Text Converter</h2>
         <br />
         <p>A React hook that converts speech from the microphone to text and makes it available to your React
@@ -105,7 +117,22 @@ const App = () => {
           {answer}
         </div>
 
-      </div>
+      </div> */}
+
+
+      <div class="searchBox">
+
+        {/* <input class="searchInput" type="text" name="" placeholder="Search"> {transcript} </input> */}
+        {/* <div className="searchInput" onClick={() => setTextToCopy(transcript)}>
+          {transcript}
+        </div> */}
+        <input class="searchInput" type="text" name="" placeholder="Say something..." value={transcript} />
+        <button {...longPressEvent} class="searchButton" ><FaMicrophone />
+          <i class="material-icons">
+          </i>
+        </button>
+        {showCancel ? <ClearButton /> : null}
+      </div >
 
     </>
   );
